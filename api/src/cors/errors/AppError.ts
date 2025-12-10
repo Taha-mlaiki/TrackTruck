@@ -6,7 +6,7 @@ export class AppError extends Error {
   constructor(status = 500, message = "Internal Server Error", details?: any) {
     super(message);
     this.status = status;
-    this.message = message;
+    this.details = details;
     Object.setPrototypeOf(this, AppError.prototype);
   }
 }

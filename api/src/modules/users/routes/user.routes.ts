@@ -12,8 +12,8 @@ const repo = new UserRepository();
 const service = new UserService(repo);
 const controller = new UserController(service);
 
-router.post("/", requireAuth, requireRole(["admin"]), validate(CreateUserSchema), controller.create);
-router.get("/", requireAuth, requireRole(["admin"]), controller.list);
+router.post("/", requireAuth, requireRole(["Admin"]), validate(CreateUserSchema), controller.create);
+router.get("/", requireAuth, requireRole(["Admin"]), controller.list);
 router.get("/:id", requireAuth, controller.getOne);
 
 export default router;
