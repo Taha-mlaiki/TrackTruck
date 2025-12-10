@@ -1,18 +1,23 @@
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
 import mongoose from "mongoose";
-
+import authRoutes from "./routes/auth.routes";
+import cors from "cors";
 // Load environment variables from .env file
 dotenv.config();
 
 const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello, World!");
-});
+app.use("/auth", authRoutes);
 
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);

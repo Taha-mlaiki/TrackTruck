@@ -1,9 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es2017",
-    "module": "commonjs",
-    "rootDir": "src",
+    "target": "ES2020",
+    "module": "CommonJS",
     "outDir": "dist",
-    "esModuleInterop": true
-  }
+    "rootDir": "src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "types": ["node", "jest"]
+  },
+  "exclude": ["node_modules", "dist", "tests"]
 }
