@@ -1,3 +1,5 @@
+
+//! understand how appError work in the background 
 export class AppError extends Error {
   public status: number;
   public details: any;
