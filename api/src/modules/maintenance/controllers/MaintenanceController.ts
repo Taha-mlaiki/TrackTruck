@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from "express";
-import { TruckService } from "../services/TruckService";
+import { MaintenanceService } from "../services/MaintencanceService";
 
-export class TruckController {
-  constructor(private service: TruckService) {}
+export class MaintenanceController {
+  constructor(private service: MaintenanceService) {}
 
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const truck = await this.service.createTruck(req.body);
-      res.status(201).json(truck);
+      const maintenance = await this.service.createMaintenace(req.body);
+      res.status(201).json(maintenance);
     } catch (err) {
       next(err);
     }
@@ -15,8 +15,8 @@ export class TruckController {
 
   getOne = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const truck = await this.service.getTruckById(req.params.id);
-      res.json(truck);
+      const maintenance = await this.service.getMaintencance(req.params.id);
+      res.json(maintenance);
     } catch (err) {
       next(err);
     }
@@ -24,8 +24,8 @@ export class TruckController {
 
   list = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const trucks = await this.service.listTrucks();
-      res.json(trucks);
+      const maintenances = await this.service.getAllMaintenace(req.query);
+      res.json(maintenances);
     } catch (err) {
       next(err);
     }
@@ -33,7 +33,7 @@ export class TruckController {
 
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const updated = await this.service.updateTruck(req.params.id, req.body);
+      const updated = await this.service.updateMaintenace(req.params.id, req.body);
       res.json(updated);
     } catch (err) {
       next(err);
@@ -42,7 +42,7 @@ export class TruckController {
 
   remove = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this.service.deleteTruck(req.params.id);
+      await this.service.deleteMaintenace(req.params.id);
       res.status(204).send();
     } catch (err) {
       next(err);
