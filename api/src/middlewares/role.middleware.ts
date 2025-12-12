@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { AuthRequest } from "./auth.middleware";
-import { AppError } from "../cors/errors/AppError";
+import { AppError } from "../errors/AppError";
 
 export const requireRole = (roles: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {

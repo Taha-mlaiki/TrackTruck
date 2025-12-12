@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ZodSchema } from "zod";
-import { AppError } from "../cors/errors/AppError";
+import { AppError } from "../errors/AppError";
 
 export const validate = (schema: ZodSchema<any>) => {
   return (req: Request, res: Response, next: NextFunction) => {

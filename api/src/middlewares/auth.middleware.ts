@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { AppError } from "../cors/errors/AppError";
 import config from "../config";
 import jwt from "jsonwebtoken";
+import { AppError } from "../errors/AppError";
 export interface AuthRequest extends Request {
   user?: { id: string; role: string; email?: string };
 }
