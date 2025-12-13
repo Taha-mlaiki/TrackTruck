@@ -1,10 +1,13 @@
-import logger from "../../utils/logger";
+
 import cron from "node-cron";
-import { TruckRepository } from "../fleet/trucks/TruckRepository";
-import { TireRepository } from "../fleet/tires/TireRepository";
-import { MaintenanceRepository } from "./MaintenanceRepository";
-import { TrailerRepository } from "../fleet/trailers/TrailerRepository";
-import { NotFoundError } from "../../errors/NotFoundError";
+import { MaintenanceRepository } from "../MaintenanceRepository";
+import { TruckRepository } from "../../fleet/trucks/TruckRepository";
+import { TrailerRepository } from "../../fleet/trailers/TrailerRepository";
+import { TireRepository } from "../../fleet/tires/TireRepository";
+import { NotFoundError } from "../../../errors/NotFoundError";
+import logger from "../../../utils/logger";
+import { notifyAdmin } from "./notification.service";
+
 
 export class MaintenanceService {
   constructor(
@@ -54,16 +57,19 @@ export class MaintenanceService {
 
       // Check by km/mileage/wearLevel
       if (rule.resourceType === "truck" && rule.intervalKm && asset.odometerKm >= rule.intervalKm) {
-        logger.info(`Maintenance alert: truck ${asset.plateNumber} reached interval ${rule.intervalKm}km`);
-        // notifyAdmin(asset, rule);
+        const msg = `Maintenance alert: truck ${asset.plateNumber} reached interval ${rule.intervalKm}km`;
+        logger.info(msg);
+        notifyAdmin(msg, { type: "truck", id: asset._id });
       }
       if (rule.resourceType === "trailer" && rule.intervalKm && asset.mileage >= rule.intervalKm) {
-        logger.info(`Maintenance alert: trailer ${asset.plateNumber} reached interval ${rule.intervalKm}km`);
-        // notifyAdmin(asset, rule);
+        const msg = `Maintenance alert: trailer ${asset.plateNumber} reached interval ${rule.intervalKm}km`;
+        logger.info(msg);
+        notifyAdmin(msg, { type: "trailer", id: asset._id });
       }
       if (rule.resourceType === "tire" && rule.intervalKm && asset.wearLevel >= rule.intervalKm) {
-        logger.info(`Maintenance alert: tire ${asset.serialNumber} reached wear level ${rule.intervalKm}`);
-        // notifyAdmin(asset, rule);
+        const msg = `Maintenance alert: tire ${asset.serialNumber} reached wear level ${rule.intervalKm}`;
+        logger.info(msg);
+        notifyAdmin(msg, { type: "tire", id: asset._id });
       }
 
       // Check by days
@@ -71,17 +77,18 @@ export class MaintenanceService {
         const nextDue = new Date(rule.lastRun);
         nextDue.setDate(nextDue.getDate() + rule.intervalDays);
         if (new Date() >= nextDue) {
-          logger.info(`Maintenance alert: ${rule.resourceType} ${asset.plateNumber || asset.serialNumber} is due by days interval (${rule.intervalDays} days)`);
-          // notifyAdmin(asset, rule);
+          const msg = `Maintenance alert: ${rule.resourceType} ${asset.plateNumber || asset.serialNumber} is due by days interval (${rule.intervalDays} days)`;
+          logger.info(msg);
+          notifyAdmin(msg, { type: rule.resourceType, id: asset._id });
         }
       }
     }
   }
 
-//   scheduleDaily() {
-//     cron.schedule("0 8 * * *", async () => {
-//       logger.info("Running maintenance checks...");
-//       await this.checkAllRules();
-//     });
-//   }
+  scheduleDaily() {
+    cron.schedule("0 8 * * *", async () => {
+      logger.info("Running maintenance checks...");
+      await this.checkAllRules();
+    });
+  }
 }

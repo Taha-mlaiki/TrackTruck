@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { MaintenanceRepository } from "./MaintenanceRepository";
-import { MaintenanceService } from "./MaintencanceService";
+import { MaintenanceService } from "./services/MaintenanceService";
 import { MaintenanceController } from "./MaintenanceController";
 import { maintenanceRuleSchema } from "./CreateMaintenanceDTO";
 import { TrailerRepository } from "../fleet/trailers/TrailerRepository";

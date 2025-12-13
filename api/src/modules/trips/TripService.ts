@@ -1,10 +1,10 @@
 import { ITripRepository } from "./ITripRepository";
 import { IUserRepository } from "../users/IUserRepository";
-import { ITruckRepository } from "../../fleet/trucks/repositories/ITruckRepository";
+import { ITruckRepository } from "../fleet/trucks/ITruckRepository";
 import { CreateTripDTO } from "./CreateTripDTO";
 import { PdfService } from "../../utils/pdf.service";
-import { NotFoundError } from "../../cors/errors/NotFoundError";
-import { AppError } from "../../cors/errors/AppError";
+import { NotFoundError } from "../../errors/NotFoundError";
+import { AppError } from "../../errors/AppError";
 import { TripStatus } from "./Trip.model";
 
 export class TripService {
@@ -39,9 +39,17 @@ export class TripService {
     return trip;
   }
 
-  async updateStatus(tripId: string, status: TripStatus, updates: Partial<any>) {
+  async updateStatus(tripId: string, status: TripStatus, updates: Partial<any>, userId?: string, userRole?: string) {
     const trip = await this.tripRepo.findById(tripId);
     if (!trip) throw new NotFoundError("Trip not found");
+
+    // Check ownership for non-admin users
+    if (userId && userRole !== "Admin") {
+      const driverId = (trip.driver as any)._id?.toString() || trip.driver.toString();
+      if (driverId !== userId) {
+        throw new AppError(403, "You can only update your own trips");
+      }
+    }
 
     if (status === "completed") {
       if (typeof updates.endOdometer !== "number") {
@@ -62,13 +70,22 @@ export class TripService {
   }
 
   async listForUser(userId: string, role: string) {
-    if (role === "admin") return this.tripRepo.find();
+    if (role === "Admin") return this.tripRepo.find();
     return this.tripRepo.find({ driver: userId });
   }
 
-  async generateTripPdf(tripId: string) {
+  async generateTripPdf(tripId: string, userId?: string, userRole?: string) {
     const trip = await this.tripRepo.findById(tripId);
     if (!trip) throw new NotFoundError("Trip not found");
+
+    // Check ownership for non-admin users
+    if (userId && userRole !== "Admin") {
+      const driverId = (trip.driver as any)._id?.toString() || trip.driver.toString();
+      if (driverId !== userId) {
+        throw new AppError(403, "You can only download your own trip PDFs");
+      }
+    }
+
     return this.pdfService.generateTripPdfBuffer(trip);
   }
 }

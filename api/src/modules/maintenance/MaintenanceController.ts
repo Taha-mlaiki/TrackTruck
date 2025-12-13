@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { MaintenanceService } from "./MaintencanceService";
+import { MaintenanceService } from "./services/MaintenanceService";
 
 export class MaintenanceController {
   constructor(private service: MaintenanceService) {}
@@ -9,6 +9,7 @@ export class MaintenanceController {
       const maintenance = await this.service.createMaintenace(req.body);
       res.status(201).json(maintenance);
     } catch (err) {
+      console.log(err);
       next(err);
     }
   };

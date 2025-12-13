@@ -1,7 +1,7 @@
-import { AppError } from "../../../cors/errors/AppError";
-import { hashPassword } from "../../../utils/password.util";
-import { CreateUserDTO } from "../CreateUserDTO";
-import { UserRepository } from "../UserRepository";
+import { AppError } from "../../errors/AppError";
+import { hashPassword } from "../../utils/password.util";
+import { CreateUserDTO } from "./CreateUserDTO";
+import { UserRepository } from "./UserRepository";
 
 export class UserService {
   constructor(private userRepo: UserRepository) {}

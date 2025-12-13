@@ -1,20 +1,22 @@
 import { NextFunction, Request, Response } from "express";
-import { UserService } from "../services/UserService";
-import { CreateUserDTO } from "../dto/CreateUserDTO";
+import { UserService } from "./UserService";
+import { CreateUserDTO } from "./CreateUserDTO";
 
 export class UserController {
   constructor(private userService: UserService) {}
 
-  create(req: Request, res: Response, next: NextFunction) {
+  create = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = req.body as CreateUserDTO;
-      const user = this.userService.createUser(data);
+      console.log(req.body);
+      const user = await this.userService.createUser(data);
       const { password, ...rest } = (user as any).toObject();
       return res.status(201).json(rest);
     } catch (error) {
+      console.log(error);
       next(error);
     }
-  }
+  };
   getOne = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = await this.userService.getUserById(req.params.id);
