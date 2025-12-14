@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { loading, error, isAuthenticated, checkingAuth } = useAppSelector((state) => state.auth);
+  const { loading, error, isAuthenticated } = useAppSelector((state) => state.auth);
   const hasChecked = useRef(false);
 
   useEffect(() => {
@@ -25,10 +25,10 @@ export default function LoginPage() {
   }, [dispatch, isAuthenticated]);
 
   useEffect(() => {
-    if (!checkingAuth && isAuthenticated) {
+    if (isAuthenticated) {
       router.push("/dashboard");
     }
-  }, [isAuthenticated, checkingAuth, router]);
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +46,7 @@ export default function LoginPage() {
     }
   };
 
-  if (checkingAuth) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>

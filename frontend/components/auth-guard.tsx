@@ -13,11 +13,11 @@ interface AuthGuardProps {
 export function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { isAuthenticated, user, checkingAuth } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user, loading } = useAppSelector((state) => state.auth);
   const hasCheckedAuth = useRef(false);
 
   useEffect(() => {
-    // Only check auth once on initial mount, not on every render
+    // Only check auth once on initial mount
     if (!hasCheckedAuth.current && !isAuthenticated) {
       hasCheckedAuth.current = true;
       dispatch(checkAuth());
@@ -25,19 +25,20 @@ export function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
   }, [dispatch, isAuthenticated]);
 
   useEffect(() => {
-    // Only redirect after we've finished checking auth
-    if (!checkingAuth && !isAuthenticated && hasCheckedAuth.current) {
+    // Redirect to login if not authenticated (after loading finishes)
+    if (!loading && !isAuthenticated && hasCheckedAuth.current) {
       router.push("/login");
       return;
     }
 
-    if (!checkingAuth && allowedRoles && user && !allowedRoles.includes(user.role)) {
+  // Redirect if user doesn't have the required role
+  if (!loading && allowedRoles && user && !allowedRoles.includes(user.role)) {
       router.push("/dashboard");
     }
-  }, [isAuthenticated, user, allowedRoles, router, checkingAuth]);
+  }, [isAuthenticated, user, allowedRoles, router, loading]);
 
-  // Show loading while checking authentication
-  if (checkingAuth) {
+  // Show loading spinner while checking authentication
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -45,6 +46,7 @@ export function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
     );
   }
 
+  // Show loading if not authenticated yet
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -53,6 +55,7 @@ export function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
     );
   }
 
+  // Don't show anything if user doesn't have required role
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
     return null;
   }

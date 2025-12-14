@@ -20,11 +20,6 @@ export class PdfService {
       doc.text(`Planned Start: ${trip.plannedStart}`);
       doc.moveDown();
 
-      doc.text("Fields to fill:");
-      doc.text("- Start odometer: ______________________");
-      doc.text("- End odometer: ________________________");
-      doc.text("- Fuel consumed (L): ___________________");
-      doc.moveDown();
 
       doc.text("Remarks:");
       doc.text("__________________________________________");

@@ -3,56 +3,40 @@ import api, { getErrorMessage } from "@/lib/api";
 import { User } from "@/lib/types";
 import { toast } from "sonner";
 
+// Define the shape of our auth state
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
-  checkingAuth: boolean;
   error: string | null;
 }
 
+// Initial state when app starts
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
   loading: false,
-  checkingAuth: true, // Start as true to prevent flash of login page
   error: null,
 };
 
-// Check if user is authenticated on app load
-export const checkAuth = createAsyncThunk(
-  "auth/checkAuth",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await api.get("/api/auth/me");
-      return response.data;
-    } catch (err) {
-      const error = err as { response?: { status?: number } };
-      // If 401, try to refresh the token
-      if (error.response?.status === 401) {
-        try {
-          await api.post("/api/auth/refresh");
-          // Retry getting user after refresh
-          const retryResponse = await api.get("/api/auth/me");
-          return retryResponse.data;
-        } catch {
-          return rejectWithValue("Session expirée");
-        }
-      }
-      const message = getErrorMessage(err);
-      return rejectWithValue(message);
-    }
-  }
-);
-
+// Login action - call API to login user
 export const login = createAsyncThunk(
   "auth/login",
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
+      // Call login endpoint
       const response = await api.post("/api/auth/login", credentials);
-      toast.success("Connexion réussie");
+      
+      // Save token and user to localStorage
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      
+      // Show success message
+      toast.success("Login successful!");
+      
       return response.data;
     } catch (err) {
+      // Get error message and show it
       const message = getErrorMessage(err);
       toast.error(message);
       return rejectWithValue(message);
@@ -60,45 +44,63 @@ export const login = createAsyncThunk(
   }
 );
 
-export const logout = createAsyncThunk("auth/logout", async (_, { rejectWithValue }) => {
-  try {
-    await api.post("/api/auth/logout");
-    return null;
-  } catch (err) {
-    const message = getErrorMessage(err);
-    return rejectWithValue(message);
+// Logout action - clear user data
+export const logout = createAsyncThunk(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      // Call logout endpoint
+      await api.post("/api/auth/logout");
+      
+      // Clear localStorage
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      
+      toast.success("Logged out successfully");
+      return null;
+    } catch (err) {
+      const message = getErrorMessage(err);
+      return rejectWithValue(message);
+    }
   }
-});
+);
 
+// Check if user is already logged in (on app start)
+export const checkAuth = createAsyncThunk(
+  "auth/checkAuth",
+  async (_, { rejectWithValue }) => {
+    try {
+      // Get user data from API
+      const response = await api.get("/api/auth/me");
+      return response.data;
+    } catch (err) {
+      // If error, user is not logged in
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      const message = getErrorMessage(err);
+      return rejectWithValue(message);
+    }
+  }
+);
+
+// Create the slice
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    // Clear any error messages
     clearError: (state) => {
       state.error = null;
     },
+    // Manually set user (useful for updating profile)
     setUser: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = !!action.payload;
     },
   },
   extraReducers: (builder) => {
+    // Handle login actions
     builder
-      // Check Auth
-      .addCase(checkAuth.pending, (state) => {
-        state.checkingAuth = true;
-      })
-      .addCase(checkAuth.fulfilled, (state, action) => {
-        state.checkingAuth = false;
-        state.user = action.payload.user;
-        state.isAuthenticated = true;
-      })
-      .addCase(checkAuth.rejected, (state) => {
-        state.checkingAuth = false;
-        state.user = null;
-        state.isAuthenticated = false;
-      })
-      // Login
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -112,13 +114,34 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      // Logout
+
+    // Handle logout actions
+    builder
       .addCase(logout.fulfilled, (state) => {
+        state.user = null;
+        state.isAuthenticated = false;
+      })
+
+    // Handle checkAuth actions
+    builder
+      .addCase(checkAuth.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.loading = false;
         state.user = null;
         state.isAuthenticated = false;
       });
   },
 });
 
+// Export actions
 export const { clearError, setUser } = authSlice.actions;
+
+// Export reducer
 export default authSlice.reducer;

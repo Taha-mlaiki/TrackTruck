@@ -22,19 +22,19 @@ import {
 export default function Home() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { isAuthenticated, checkingAuth } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, loading } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
 
   useEffect(() => {
-    if (!checkingAuth && isAuthenticated) {
+    if (isAuthenticated) {
       router.push("/dashboard");
     }
-  }, [isAuthenticated, checkingAuth, router]);
+  }, [isAuthenticated, router]);
 
-  if (checkingAuth) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
