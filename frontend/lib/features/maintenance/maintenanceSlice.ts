@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api, { getErrorMessage } from "@/lib/api";
 import { MaintenanceRule } from "@/lib/types";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
 
 interface MaintenanceState {
   items: MaintenanceRule[];
@@ -24,8 +25,10 @@ export const fetchMaintenanceRules = createAsyncThunk(
       const response = await api.get("/api/maintenance");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -37,8 +40,10 @@ export const fetchMaintenanceRuleById = createAsyncThunk(
       const response = await api.get(`/api/maintenance/${id}`);
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -51,9 +56,11 @@ export const createMaintenanceRule = createAsyncThunk(
       toast.success("Règle de maintenance créée avec succès");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -66,9 +73,11 @@ export const updateMaintenanceRule = createAsyncThunk(
       toast.success("Règle de maintenance mise à jour");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -81,9 +90,11 @@ export const deleteMaintenanceRule = createAsyncThunk(
       toast.success("Règle de maintenance supprimée");
       return id;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );

@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api, { getErrorMessage } from "@/lib/api";
 import { User } from "@/lib/types";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
 
 // Define the shape of our auth state
 interface AuthState {
@@ -37,9 +38,11 @@ export const login = createAsyncThunk(
       return response.data;
     } catch (err) {
       // Get error message and show it
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -59,8 +62,10 @@ export const logout = createAsyncThunk(
       toast.success("Logged out successfully");
       return null;
     } catch (err) {
-      const message = getErrorMessage(err);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -77,8 +82,10 @@ export const checkAuth = createAsyncThunk(
       // If error, user is not logged in
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      const message = getErrorMessage(err);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        return rejectWithValue(message);
+      }
     }
   }
 );

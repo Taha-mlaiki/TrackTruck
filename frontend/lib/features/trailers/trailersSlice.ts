@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api, { getErrorMessage } from "@/lib/api";
 import { Trailer } from "@/lib/types";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
 
 interface TrailersState {
   items: Trailer[];
@@ -22,8 +23,10 @@ export const fetchTrailers = createAsyncThunk("trailers/fetchAll", async (_, { r
     const response = await api.get("/api/trailers");
     return response.data;
   } catch (err) {
-    const message = getErrorMessage(err);
-    return rejectWithValue(message);
+    if (isAxiosError(err)) {
+      const message = getErrorMessage(err);
+      return rejectWithValue(message);
+    }
   }
 });
 
@@ -34,8 +37,10 @@ export const fetchTrailerById = createAsyncThunk(
       const response = await api.get(`/api/trailers/${id}`);
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -48,9 +53,11 @@ export const createTrailer = createAsyncThunk(
       toast.success("Remorque créée avec succès");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -63,9 +70,11 @@ export const updateTrailer = createAsyncThunk(
       toast.success("Remorque mise à jour avec succès");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -78,9 +87,11 @@ export const deleteTrailer = createAsyncThunk(
       toast.success("Remorque supprimée avec succès");
       return id;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );

@@ -157,7 +157,7 @@ describe("TripService", () => {
     it("should return all trips for admin", async () => {
       mockTripRepo.find.mockResolvedValue([sampleTrip]);
 
-      await service.listForUser(sampleAdmin._id, "admin");
+      await service.listForUser(sampleAdmin._id, "Admin");
 
       expect(mockTripRepo.find).toHaveBeenCalledWith();
     });

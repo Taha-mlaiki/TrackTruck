@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api, { getErrorMessage } from "@/lib/api";
 import { Tire } from "@/lib/types";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
 
 interface TiresState {
   items: Tire[];
@@ -22,8 +23,10 @@ export const fetchTires = createAsyncThunk("tires/fetchAll", async (_, { rejectW
     const response = await api.get("/api/tires");
     return response.data;
   } catch (err) {
-    const message = getErrorMessage(err);
-    return rejectWithValue(message);
+    if (isAxiosError(err)) {
+      const message = getErrorMessage(err);
+      return rejectWithValue(message);
+    }
   }
 });
 
@@ -34,8 +37,10 @@ export const fetchTireById = createAsyncThunk(
       const response = await api.get(`/api/tires/${id}`);
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -48,9 +53,11 @@ export const createTire = createAsyncThunk(
       toast.success("Pneu créé avec succès");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -63,9 +70,11 @@ export const updateTire = createAsyncThunk(
       toast.success("Pneu mis à jour avec succès");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -78,9 +87,11 @@ export const deleteTire = createAsyncThunk(
       toast.success("Pneu supprimé avec succès");
       return id;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );

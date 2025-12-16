@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -6,6 +6,15 @@ const api = axios.create({
   withCredentials: true, // Send cookies with requests
 });
 
+
+interface IErrorApi {
+  response?:{
+    data?:{
+      message:string ;
+    }
+    status:number;
+  }
+}
 // Add token to every request
 api.interceptors.request.use(
   (config) => {
@@ -42,8 +51,16 @@ api.interceptors.response.use(
   }
 );
 
+
+export type IAxiosError = AxiosError<{
+  message?: string;
+  error?: string;
+  details?: Array<{ message: string }>;
+}>;
+
+
 // Helper function to get error message from API response
-export const getErrorMessage = (error: any): string => {
+export const getErrorMessage = (error: IAxiosError): string => {
   // Check if error has response from server
   if (error.response?.data?.error) {
     return error.response.data.error;
@@ -56,7 +73,7 @@ export const getErrorMessage = (error: any): string => {
   
   // Check for validation errors
   if (error.response?.data?.details && Array.isArray(error.response.data.details)) {
-    return error.response.data.details.map((d: any) => d.message).join(", ");
+    return error.response.data.details.map((d: { message: string }) => d.message).join(", ");
   }
   
   // Default error message

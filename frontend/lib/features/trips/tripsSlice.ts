@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api, { getErrorMessage } from "@/lib/api";
 import { Trip, TripStatus } from "@/lib/types";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
 
 // Define the shape of our trips state
 interface TripsState {
@@ -25,9 +26,11 @@ export const fetchTrips = createAsyncThunk(
       const response = await api.get("/api/trips");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -41,9 +44,11 @@ export const createTrip = createAsyncThunk(
       toast.success("Trip created successfully!");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -60,9 +65,11 @@ export const updateTripStatus = createAsyncThunk(
       toast.success("Trip status updated!");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -87,9 +94,11 @@ export const downloadTripPdf = createAsyncThunk(
       toast.success("PDF downloaded successfully!");
       return id;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "./AppError";
 import logger from "../utils/logger";
+
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof AppError) {
     logger.warn(`AppError: ${err.message}`, { status: err.status, details: err.details });

@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api, { getErrorMessage } from "@/lib/api";
 import { Truck } from "@/lib/types";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
 
 interface TrucksState {
   items: Truck[];
@@ -22,8 +23,10 @@ export const fetchTrucks = createAsyncThunk("trucks/fetchAll", async (_, { rejec
     const response = await api.get("/api/trucks");
     return response.data;
   } catch (err) {
-    const message = getErrorMessage(err);
-    return rejectWithValue(message);
+    if (isAxiosError(err)) {
+      const message = getErrorMessage(err);
+      return rejectWithValue(message);
+    }
   }
 });
 
@@ -34,8 +37,10 @@ export const fetchTruckById = createAsyncThunk(
       const response = await api.get(`/api/trucks/${id}`);
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -48,9 +53,11 @@ export const createTruck = createAsyncThunk(
       toast.success("Camion créé avec succès");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -63,9 +70,11 @@ export const updateTruck = createAsyncThunk(
       toast.success("Camion mis à jour avec succès");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -78,9 +87,11 @@ export const deleteTruck = createAsyncThunk(
       toast.success("Camion supprimé avec succès");
       return id;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );

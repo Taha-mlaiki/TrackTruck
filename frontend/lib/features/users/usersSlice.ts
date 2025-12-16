@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api, { getErrorMessage } from "@/lib/api";
 import { User } from "@/lib/types";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
 
 interface UsersState {
   items: User[];
@@ -22,8 +23,10 @@ export const fetchUsers = createAsyncThunk("users/fetchAll", async (_, { rejectW
     const response = await api.get("/api/users");
     return response.data;
   } catch (err) {
-    const message = getErrorMessage(err);
-    return rejectWithValue(message);
+    if(isAxiosError(err) ) {
+      const message = getErrorMessage(err);
+      return rejectWithValue(message);
+    }
   }
 });
 
@@ -33,9 +36,11 @@ export const fetchUserById = createAsyncThunk(
     try {
       const response = await api.get(`/api/users/${id}`);
       return response.data;
-    } catch (err) {
-      const message = getErrorMessage(err);
-      return rejectWithValue(message);
+    }  catch (err) {
+      if(isAxiosError(err) ) {
+        const message = getErrorMessage(err);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -47,10 +52,12 @@ export const createUser = createAsyncThunk(
       const response = await api.post("/api/users", data);
       toast.success("Utilisateur créé avec succès");
       return response.data;
-    } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+    }  catch (err) {
+      if(isAxiosError(err) ) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -63,9 +70,11 @@ export const updateUser = createAsyncThunk(
       toast.success("Utilisateur mis à jour avec succès");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -78,9 +87,11 @@ export const deleteUser = createAsyncThunk(
       toast.success("Utilisateur supprimé avec succès");
       return id;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );

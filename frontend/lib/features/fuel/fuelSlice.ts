@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api, { getErrorMessage } from "@/lib/api";
 import { Fuel, FuelStats } from "@/lib/types";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
 
 interface FuelState {
   items: Fuel[];
@@ -24,8 +25,10 @@ export const fetchFuelRecords = createAsyncThunk(
       const response = await api.get("/api/fuel");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -38,9 +41,11 @@ export const createFuelRecord = createAsyncThunk(
       toast.success("Enregistrement carburant créé avec succès");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -53,9 +58,11 @@ export const updateFuelRecord = createAsyncThunk(
       toast.success("Enregistrement carburant mis à jour");
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -68,9 +75,11 @@ export const deleteFuelRecord = createAsyncThunk(
       toast.success("Enregistrement carburant supprimé");
       return id;
     } catch (err) {
-      const message = getErrorMessage(err);
-      toast.error(message);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        toast.error(message);
+        return rejectWithValue(message);
+      }
     }
   }
 );
@@ -87,8 +96,10 @@ export const fetchFuelStats = createAsyncThunk(
       const response = await api.get(`/api/fuel/stats?${queryParams.toString()}`);
       return response.data;
     } catch (err) {
-      const message = getErrorMessage(err);
-      return rejectWithValue(message);
+      if (isAxiosError(err)) {
+        const message = getErrorMessage(err);
+        return rejectWithValue(message);
+      }
     }
   }
 );
